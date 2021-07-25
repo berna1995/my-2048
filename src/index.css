@@ -1,0 +1,36 @@
+html, body {
+    width: 100%;
+    height: 100%;
+    margin: 0; padding: 0;
+}
+
+#root {
+    display: flex;
+    justify-content: center;
+    align-content: center;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+}
+
+.gamegrid {
+    margin: auto;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 5px;
+    width: 50vmin;
+    height: 50vmin;
+    border: 1px black solid;
+    background-color: lightcoral;
+    border: lightcoral 5px solid;
+
+}
+
+.block {
+    display: flex;
+    justify-content: center;
+    align-content: center;
+    flex-direction: column;
+    text-align: center;
+    background-color: lightblue;
+}
