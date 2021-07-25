@@ -5,7 +5,7 @@ import './index.css';
 class Box extends React.Component {
     render() {
         return (
-            <div>Box</div>
+            <div className="block">Box {this.props.x} {this.props.y}</div>
         );
     }
 }
@@ -18,11 +18,11 @@ class Game extends React.Component {
 
     generateBoxes(rows, columns) {
         let boxes = [];
-        for(let i=0; i<rows; i++) {
-            for(let j=0; j<columns; j++) {
-                boxes.push(<div className="block">Box {i} {j}</div>)
-            }
-        }
+
+        for(let i=0; i<rows; i++)
+            for(let j=0; j<columns; j++)
+                boxes.push(<Box x={i} y={j}/>);
+
         return boxes;
     }
 
