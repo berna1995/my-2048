@@ -2,26 +2,37 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 
-class Box extends React.Component {
+class BackgroundBox extends React.Component {
     render() {
         return (
-            <div className="block">Box {this.props.x} {this.props.y}</div>
+            <div className="bg-block" style={{ gridRow: this.props.row + 1, gridColumn: this.props.col + 1 }} />
         );
     }
 }
 
-class Game extends React.Component {
+class ValueBox extends React.Component {
+    render() {
+        return (
+            <div className="value-block" style={{ gridRow: this.props.row + 1, gridColumn: this.props.col + 1 }} >
+                {this.props.value}
+            </div>
+        );
+    }
+}
+
+class Board extends React.Component {
 
     constructor(props) {
         super(props);
+
     }
 
-    generateBoxes(rows, columns) {
+    generateBackgroundBlocks(rows, columns) {
         let boxes = [];
 
-        for(let i=0; i<rows; i++)
-            for(let j=0; j<columns; j++)
-                boxes.push(<Box x={i} y={j}/>);
+        for (let i = 0; i < rows; i++)
+            for (let j = 0; j < columns; j++)
+                boxes.push(<BackgroundBox row={i} col={j} />);
 
         return boxes;
     }
@@ -29,7 +40,30 @@ class Game extends React.Component {
     render() {
         return (
             <div className="gamegrid">
-                {this.generateBoxes(this.props.rows,this.props.columns)}
+                {this.generateBackgroundBlocks(this.props.rows, this.props.columns)}
+                <ValueBox row={1} col={2} value={2048} />
+            </div>
+        );
+    }
+}
+
+class Header extends React.Component {
+    render() {
+        return (
+            <div className="header">
+                <h1> My-2048 </h1>
+            </div>
+        );
+    }
+}
+
+class Game extends React.Component {
+
+    render() {
+        return (
+            <div className="gamecontainer">
+                <Header />
+                <Board rows={this.props.rows} columns={this.props.columns} />
             </div>
         );
     }
