@@ -22,7 +22,7 @@ html, body {
     height: 50vmin;
     background-color: lightcoral;
     border: lightcoral 5px solid;
-
+    border-radius: 10px;
 }
 
 .block {
@@ -32,4 +32,5 @@ html, body {
     flex-direction: column;
     text-align: center;
     background-color: lightblue;
+    border-radius: 10px;
 }
