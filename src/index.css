@@ -42,6 +42,7 @@ html, body {
     border-radius: 10px;
     z-index: 1;
     font-size: 2em;
+    animation: fadein 0.3s;
 }
 
 .bg-block {
@@ -51,3 +52,7 @@ html, body {
     justify-self: stretch;
 }
 
+@keyframes fadein {
+    from { transform: scale(0%); }
+    to { transform: scale(100%); }
+}
