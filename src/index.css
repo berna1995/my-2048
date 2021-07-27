@@ -32,7 +32,7 @@ html, body {
     border-radius: 10px;
 }
 
-.value-block {
+.value-cell {
     display: flex;
     justify-content: center;
     align-content: center;
@@ -45,7 +45,7 @@ html, body {
     animation: fadein 0.3s;
 }
 
-.bg-block {
+.bg-cell {
     background-color: crimson;
     border-radius: 10px;
     z-index: 0;

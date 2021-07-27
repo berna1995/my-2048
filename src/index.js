@@ -2,18 +2,18 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 
-class BackgroundBox extends React.Component {
+class BackgroundCell extends React.Component {
     render() {
         return (
-            <div className="bg-block"/>
+            <div className="bg-cell" style={{ gridRow: this.props.row + 1, gridColumn: this.props.col + 1 }} />
         );
     }
 }
 
-class ValueBox extends React.Component {
+class ValueCell extends React.Component {
     render() {
         return (
-            <div className="value-block" style={{ gridRow: this.props.row + 1, gridColumn: this.props.col + 1 }} >
+            <div className="value-cell" style={{ gridRow: this.props.row + 1, gridColumn: this.props.col + 1 }} >
                 {this.props.value}
             </div>
         );
@@ -23,19 +23,21 @@ class ValueBox extends React.Component {
 class Board extends React.Component {
     constructor(props) {
         super(props);
+        this.handleKeyDown = this.handleKeyDown.bind(this);
     }
 
-    generateBackgroundBlocks(rows, columns) {
+    generateBackgroundCells(rows, columns) {
         let boxes = [];
 
         for (let i = 0; i < rows; i++)
             for (let j = 0; j < columns; j++)
-                boxes.push(<BackgroundBox />);
+                boxes.push(<BackgroundCell key={i*columns + j } row={i} col={j}/>);
 
         return boxes;
     }
 
     handleKeyDown(keyevent) {
+        this.setState({hello: 10}); 
         switch(keyevent.keyCode) {
             case 40: 
                 // Arrow down
@@ -58,18 +60,20 @@ class Board extends React.Component {
     }
 
     componentDidMount() {
-        document.addEventListener("onkeydown", this.handleKeyDown);
+        document.addEventListener("keydown", this.handleKeyDown);
     }
 
     componentWillUnmount() {
-        document.removeEventListener("onkeydown", this.handleKeyDown);
+        document.removeEventListener("keydown", this.handleKeyDown);
     }
 
     render() {
+        const bgCells = this.generateBackgroundCells(this.props.rows, this.props.columns);
+
         return (
             <div className="gamegrid">
-                {this.generateBackgroundBlocks(this.props.rows, this.props.columns)}
-                <ValueBox row={1} col={2} value={2048} />
+                {bgCells}
+                <ValueCell row={1} col={2} value={2048} />
             </div>
         );
     }
