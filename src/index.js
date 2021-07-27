@@ -58,11 +58,11 @@ class Board extends React.Component {
     }
 
     componentDidMount() {
-        document.onkeydown = this.handleKeyDown;
+        document.addEventListener("onkeydown", this.handleKeyDown);
     }
 
     componentWillUnmount() {
-        document.onkeydown = null;
+        document.removeEventListener("onkeydown", this.handleKeyDown);
     }
 
     render() {
