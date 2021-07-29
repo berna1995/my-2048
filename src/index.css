@@ -42,7 +42,6 @@ html, body {
     border-radius: 10px;
     z-index: 1;
     font-size: 1.5em;
-    animation: fadein 0.3s;
 }
 
 .bg-cell {
@@ -52,7 +51,7 @@ html, body {
     justify-self: stretch;
 }
 
-@keyframes fadein {
+@keyframes join-animation {
     from { transform: scale(0%); }
     to { transform: scale(100%); }
 }
