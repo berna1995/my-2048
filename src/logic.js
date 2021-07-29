@@ -132,12 +132,10 @@ class GameBoard {
     }
 
 
-    spawnCells(n, defaultValue = 2) {
+    spawnCells(n, value = 2) {
         let emptyCells = [];
 
-        let realBoard = this.copy().applyChanges();
-
-        realBoard.cells.forEach(row => {
+        this.cells.forEach(row => {
             row.forEach(cell => {
                 if (cell.isEmpty())
                     emptyCells.push(cell);
@@ -151,7 +149,7 @@ class GameBoard {
         for (let i = 0; i < n; i++) {
             let cIndex = getRandomInt(emptyCells.length);
             let emptyCell = emptyCells[cIndex];
-            this.cells[emptyCell.row][emptyCell.col].val = defaultValue;
+            this.cells[emptyCell.row][emptyCell.col].val = value;
             emptyCells.splice(cIndex, 1);
         }
 
