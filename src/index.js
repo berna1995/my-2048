@@ -24,8 +24,11 @@ class ValueCell extends React.Component {
             gridColumn: this.props.cell.col + 1,
         };
 
+        let cappedValue = Math.min(2048, this.props.cell.val);
+        let classes = `value-cell value-${cappedValue}`; 
+
         return (
-            <div className="value-cell" style={styles} ref={this.divRef} >
+            <div className={classes} style={styles} ref={this.divRef} >
                 {this.props.cell.val}
             </div>
         );
@@ -58,6 +61,20 @@ class Board extends React.Component {
     }
 
     handleKeyDown(keyevent) {
+
+        /**
+         * The idea here.
+         * 1. Create new board starting from previous one
+         * 2. Check for diffs (move returns this if no diff)
+         * 3. Render the new cells animating
+         * 4. When animations are done
+         *  4.1 Apply changes to the board
+         *  4.2 Spawn new cell(s) if possible
+         *  4.3 Render again new cell(s) animation
+         * 5. Check if won/lost maybe?
+         * 6. Accept user input again (should be blocked from pt 3 to pt 5)
+         */
+
         let oldBoard = this.state.board;
         let newBoard;
         let moveDir;
