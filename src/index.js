@@ -42,7 +42,9 @@ class Board extends React.Component {
     constructor(props) {
         super(props);
         this.handleKeyDown = this.handleKeyDown.bind(this);
-        this.state = { board: new GameBoard(props.rows, props.columns) };
+        let gameBoard = new GameBoard(props.rows, props.columns);
+        gameBoard.spawnCells(1);
+        this.state = { board: gameBoard };
     }
 
     generateBackgroundCells(rows, columns) {
@@ -56,20 +58,24 @@ class Board extends React.Component {
     }
 
     handleKeyDown(keyevent) {
+        let oldBoard = this.state.board;
         let newBoard;
+        let moveDir;
 
         switch (keyevent.keyCode) {
-            case 40: newBoard = this.state.board.move(MoveDirection.DOWN); break;
-            case 39: newBoard = this.state.board.move(MoveDirection.RIGHT); break;
-            case 38: newBoard = this.state.board.move(MoveDirection.UP); break;
-            case 37: newBoard = this.state.board.move(MoveDirection.LEFT); break;
+            case 40: moveDir = MoveDirection.DOWN; break;
+            case 39: moveDir = MoveDirection.RIGHT; break;
+            case 38: moveDir = MoveDirection.UP; break;
+            case 37: moveDir = MoveDirection.LEFT; break;
             default: return;
         }
 
-        // For testing purposes only, change this
-        newBoard.applyChanges();
-
-        this.setState({ board: newBoard });
+        newBoard = oldBoard.move(moveDir);
+        if (newBoard !== oldBoard) {
+            newBoard.applyChanges();
+            newBoard.spawnCells(1);
+            this.setState({ board: newBoard });
+        }
     }
 
     componentDidMount() {

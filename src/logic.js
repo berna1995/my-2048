@@ -11,16 +11,16 @@ function getRandomInt(max) {
 
 class Cell {
 
-    static nextIdentifierAvailable = 0;
+    static nextIdentifierAvailable = 1;
 
-    constructor(row, col, val, nextVal, rowDestination, colDestination, mergedInto, cellIdentifier) {
+    constructor(row, col, val = 0, nextVal = 0, rowDestination = null, colDestination = null, mergedInto = false, cellIdentifier = null) {
         this.row = row;
         this.col = col;
-        this.val = val || 0;
-        this.nextVal = nextVal || 0;
-        this.rowDestination = rowDestination || null;
-        this.colDestination = colDestination || null;
-        this.mergedInto = mergedInto || false;
+        this.val = val;
+        this.nextVal = nextVal;
+        this.rowDestination = rowDestination;
+        this.colDestination = colDestination;
+        this.mergedInto = mergedInto;
         this.cellIdentifier = cellIdentifier || Cell.nextIdentifierAvailable++;
     }
 
@@ -42,19 +42,16 @@ class Cell {
     }
 
     moveBy(amount, direction) {
-        if (this.rowDestination == null)
+        if (this.rowDestination === null)
             this.rowDestination = this.row;
-        if (this.colDestination == null)
+        if (this.colDestination === null)
             this.colDestination = this.col;
 
-        let currentRowVal = this.rowDestination;
-        let currentColVal = this.colDestination;
-
         switch (direction) {
-            case MoveDirection.UP: this.rowDestination = currentRowVal - amount; break;
-            case MoveDirection.DOWN: this.rowDestination = currentRowVal + amount; break;
-            case MoveDirection.LEFT: this.colDestination = currentColVal - amount; break;
-            case MoveDirection.RIGHT: this.colDestination = currentColVal + amount; break;
+            case MoveDirection.UP: this.rowDestination = this.rowDestination - amount; break;
+            case MoveDirection.DOWN: this.rowDestination = this.rowDestination + amount; break;
+            case MoveDirection.LEFT: this.colDestination = this.colDestination - amount; break;
+            case MoveDirection.RIGHT: this.colDestination = this.colDestination + amount; break;
             default: return;
         }
     }
@@ -84,19 +81,21 @@ class GameBoard {
             this.cells = cells;
         else {
             this.cells = Array(rows).fill().map(() => Array(columns).fill());
-
-            for (let i = 0; i < this.ROWS; i++)
-                for (let j = 0; j < this.COLUMNS; j++)
-                    this.cells[i][j] = new Cell(i, j);
-
-            this.addNewCells(1, 2);
+            GameBoard.initializeGrid(this.cells, rows, columns);
         }
     }
-
 
     copy() {
         let cellsCopy = this.cells.map((row) => row.map(cell => cell.copy()));
         return new GameBoard(this.ROWS, this.COLUMNS, cellsCopy);
+    }
+
+    static initializeGrid(cellsArray, rows, columns) {
+        for (let i = 0; i < rows; i++)
+            for (let j = 0; j < columns; j++)
+                cellsArray[i][j] = new Cell(i, j);
+
+        return cellsArray;
     }
 
     getNonEmptyCells() {
@@ -112,51 +111,55 @@ class GameBoard {
         return nonEmptyCells;
     }
 
-    addNewCells(n, defaultValue) {
+    applyChanges() {
+        let flatCells = this.cells.flat();
+
+        GameBoard.initializeGrid(this.cells, this.ROWS, this.COLUMNS);
+
+        flatCells.forEach(cell => {
+            if (cell.isMoving()) {
+                if (!cell.isGettingMerged()) {
+                    this.cells[cell.rowDestination][cell.colDestination] = cell;
+                    cell.applyMoveAndClear();
+                }
+            } else {
+                if (!cell.isEmpty() && !cell.isGettingMerged())
+                    this.cells[cell.row][cell.col] = cell;
+            }
+        });
+
+        return this;
+    }
+
+
+    spawnCells(n, defaultValue = 2) {
         let emptyCells = [];
 
-        this.cells.forEach(row => {
+        let realBoard = this.copy().applyChanges();
+
+        realBoard.cells.forEach(row => {
             row.forEach(cell => {
                 if (cell.isEmpty())
                     emptyCells.push(cell);
             });
         });
 
+
         if (emptyCells.length < n)
             return false;
 
         for (let i = 0; i < n; i++) {
             let cIndex = getRandomInt(emptyCells.length);
-            emptyCells[cIndex].val = defaultValue;
+            let emptyCell = emptyCells[cIndex];
+            this.cells[emptyCell.row][emptyCell.col].val = defaultValue;
             emptyCells.splice(cIndex, 1);
         }
 
         return true;
     }
 
-    applyChanges() {
-        let flatCells = this.cells.flat();
-        let FLAG_RECREATE_0 = 0;
-
-        flatCells.forEach(cell => {
-            if (cell.isMoving()) {
-                this.cells[cell.rowDestination][cell.colDestination] = cell;
-                this.cells[cell.row][cell.col] = FLAG_RECREATE_0;
-                cell.applyMoveAndClear();
-            }
-        });
-
-        for (let i = 0; i < this.ROWS; i++)
-            for (let j = 0; j < this.COLUMNS; j++)
-                if (this.cells[i][j] === FLAG_RECREATE_0)
-                    this.cells[i][j] = new Cell(i, j);
-
-        return this;
-    }
-
     move(moveDirection) {
         let board = this.copy().applyChanges();
-
         let lines = [];
 
         switch (moveDirection) {
@@ -186,25 +189,45 @@ class GameBoard {
         }
 
         lines.forEach(line => {
-            for (let i = 0; i < line.length - 1; i++) {
+            let prevNonZeroCell = null;
+            for (let i = 0; i < line.length; i++) {
                 let cell = line[i];
                 if (cell.isEmpty()) {
-                    for (let j = i; j < line.length; j++)
+                    for (let j = i + 1; j < line.length; j++)
                         if (!line[j].isEmpty())
                             line[j].moveBy(1, moveDirection);
                 } else {
-                    let cellAdj = cell[i + 1];
-                    if (cell.val === cell.cellAdj) {
-                        cell.markGettingMerged();
-                        cellAdj.moveBy(1, moveDirection);
-                        cellAdj.nextVal = cellAdj.val * 2;
-                        i++;
+                    if (prevNonZeroCell === null) {
+                        prevNonZeroCell = cell;
+                    } else {
+                        if (prevNonZeroCell.val === cell.val) {
+                            prevNonZeroCell.markGettingMerged();
+                            cell.nextVal = cell.val * 2;
+
+                            for (let j = i; j < line.length; j++) {
+                                if (!line[j].isEmpty())
+                                    line[j].moveBy(1, moveDirection);
+                            }
+
+                            prevNonZeroCell = null;
+                        } else {
+                            prevNonZeroCell = cell;
+                        }
                     }
                 }
             }
         });
 
+        let diffs = board.cells.flat().reduce((acc, cell) => acc + (cell.isMoving() ? 1 : 0), 0);
+
+        if (!diffs)
+            return this;
+
         return board;
+    }
+
+    toString() {
+        return this.cells.map(row => row.map(cell => cell.val).join(' ')).join('\r\n');
     }
 }
 
