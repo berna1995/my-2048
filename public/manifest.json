@@ -1,0 +1,9 @@
+{
+    "short_name": "My 2048",
+    "name": "My React 2048",
+    "icons": [],
+    "start_url": "./index.html",
+    "display": "standalone",
+    "theme_color": "#000000",
+    "background_color": "#ffffff"
+  }
