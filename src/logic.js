@@ -21,7 +21,7 @@ class Cell {
         this.rowDestination = rowDestination;
         this.colDestination = colDestination;
         this.mergedInto = mergedInto;
-        this.cellIdentifier = cellIdentifier || Cell.nextIdentifierAvailable++;
+        this.cellIdentifier = Cell.nextIdentifierAvailable++;
     }
 
     isEmpty() {
@@ -112,23 +112,25 @@ class GameBoard {
     }
 
     applyChanges() {
-        let flatCells = this.cells.flat();
+        let board = this.copy();
 
-        GameBoard.initializeGrid(this.cells, this.ROWS, this.COLUMNS);
+        let flatCells = board.cells.flat();
+
+        GameBoard.initializeGrid(board.cells, board.ROWS, board.COLUMNS);
 
         flatCells.forEach(cell => {
             if (cell.isMoving()) {
                 if (!cell.isGettingMerged()) {
-                    this.cells[cell.rowDestination][cell.colDestination] = cell;
+                    board.cells[cell.rowDestination][cell.colDestination] = cell;
                     cell.applyMoveAndClear();
                 }
             } else {
                 if (!cell.isEmpty() && !cell.isGettingMerged())
-                    this.cells[cell.row][cell.col] = cell;
+                    board.cells[cell.row][cell.col] = cell;
             }
         });
 
-        return this;
+        return board;
     }
 
 
@@ -157,7 +159,7 @@ class GameBoard {
     }
 
     move(moveDirection) {
-        let board = this.copy().applyChanges();
+        let board = this.copy();
         let lines = [];
 
         switch (moveDirection) {
