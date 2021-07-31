@@ -1,8 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-import { GameBoard, MoveDirection, Cell } from './logic';
-import { ValueAnimator } from './animation_helper';
+import { GameBoard, MoveDirection } from './logic';
+import { SequentialAnimator, ValueAnimator } from './animation_helper';
 
 class BackgroundCell extends React.Component {
     render() {
@@ -21,7 +21,7 @@ class ValueCell extends React.Component {
         this.divRef = React.createRef();
         this.animate = this.animate.bind(this);
         this.resetAnimationStatus();
-        this.state = { translationX: 0, translationY: 0 };
+        this.state = { translationX: 0, translationY: 0, scaleFactor: 100 };
         this.recycled = false;
     }
 
@@ -32,13 +32,14 @@ class ValueCell extends React.Component {
         };
 
         if (this.props.cell.isMoving()) {
-            styles['transform'] = 'translate(' + this.state.translationX + 'px,' + this.state.translationY + 'px)';
+            styles['transform'] = `translate(${this.state.translationX}px, ${this.state.translationY}px) scale(${this.state.scaleFactor}%)`
         }
+        
 
         let cappedValue = Math.min(2048, this.props.cell.val);
         let zIndexClass = this.props.cell.isGettingMerged() ? 'value-cell-merged' : 'value-cell-top';
-        let classes = this.recycled ? `value-cell value-${cappedValue} ${zIndexClass}` : 
-                                      `value-cell value-${cappedValue} ${zIndexClass} value-cell-pop-in`;
+        let classes = this.recycled ? `value-cell value-${cappedValue} ${zIndexClass}` :
+            `value-cell value-${cappedValue} ${zIndexClass} value-cell-pop-in`;
 
         this.recycled = true;
 
@@ -55,13 +56,28 @@ class ValueCell extends React.Component {
 
         if (this.props.cell.isMoving() && !this.animationDone && this.animationRequestId === 0) {
             let [axis, valDiff, animDuration] = this.computeAnimationTranslation();
-            this.animation = new ValueAnimator(0, valDiff, animDuration);
-            this.animation.setUpdatedValueCallback(val => {
+            let composedAnimator = new SequentialAnimator();
+            let translationAnimator = new ValueAnimator(0, valDiff, animDuration);
+            translationAnimator.setUpdatedValueCallback(val => {
                 if (axis === 'x')
                     this.setState({ translationX: val, translationY: 0 });
                 else
                     this.setState({ translationX: 0, translationY: val });
             });
+            composedAnimator.addAnimator(translationAnimator);
+            if (this.props.cell.isMergingInto()) {
+                let firstScaleAnimator = new ValueAnimator(100, 110, 100);
+                firstScaleAnimator.setUpdatedValueCallback(val => {
+                    this.setState({ scaleFactor: val });
+                });
+                let secondScaleAnimator = new ValueAnimator(110, 100, 100);
+                secondScaleAnimator.setUpdatedValueCallback(val => {
+                    this.setState({ scaleFactor: val });
+                });
+                composedAnimator.addAnimator(firstScaleAnimator);
+                composedAnimator.addAnimator(secondScaleAnimator);
+            }
+            this.animation = composedAnimator;
             this.animationRequestId = window.requestAnimationFrame(this.animate);
         }
     }

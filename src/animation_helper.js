@@ -46,7 +46,7 @@ class ValueAnimator {
     update(currentTime) {
         let animationProgRatio = this.animationHelper.getTimeRatio(currentTime);
         this.currentVal = this.fromValue + (this.valDiff * animationProgRatio);
-        if(this.updateCallback)
+        if (this.updateCallback)
             this.updateCallback(this.currentVal);
     }
 
@@ -59,4 +59,30 @@ class ValueAnimator {
     }
 }
 
-export { ValueAnimator };
+class SequentialAnimator {
+
+    constructor() {
+        this.animationList = [];
+        this.currentAnimationIndex = 0;
+    }
+
+    update(currentTime) {
+        if (this.currentAnimationIndex < this.animationList.length) {
+            let currentAnim = this.animationList[this.currentAnimationIndex];
+            currentAnim.update(currentTime);
+            if (currentAnim.isCompleted())
+                this.currentAnimationIndex++;
+        }
+    }
+
+    addAnimator(animator) {
+        this.animationList.push(animator);
+    }
+
+    isCompleted() {
+        return this.animationList.every(anim => anim.isCompleted());
+    }
+
+}
+
+export { ValueAnimator, SequentialAnimator};

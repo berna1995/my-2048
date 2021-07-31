@@ -13,7 +13,7 @@ class Cell {
 
     static nextIdentifierAvailable = 1;
 
-    constructor(row, col, val = 0, nextVal = 0, rowDestination = null, colDestination = null, mergedInto = false, cellIdentifier = null) {
+    constructor(row, col, val = 0, nextVal = 0, rowDestination = null, colDestination = null, mergedInto = false, mergingInto=false, cellIdentifier = null) {
         this.row = row;
         this.col = col;
         this.val = val;
@@ -21,6 +21,7 @@ class Cell {
         this.rowDestination = rowDestination;
         this.colDestination = colDestination;
         this.mergedInto = mergedInto;
+        this.mergingInto = mergingInto;
         this.cellIdentifier = cellIdentifier || Cell.nextIdentifierAvailable++;
     }
 
@@ -38,6 +39,8 @@ class Cell {
             }
             this.rowDestination = null;
             this.colDestination = null;
+            this.mergingInto = false;
+            this.mergedInto = false;
         }
     }
 
@@ -64,12 +67,20 @@ class Cell {
         this.mergedInto = true;
     }
 
+    markMerging() {
+        this.mergingInto = true;
+    }
+
     isGettingMerged() {
         return this.mergedInto;
     }
 
+    isMergingInto() {
+        return this.mergingInto;
+    }
+
     copy() {
-        return new Cell(this.row, this.col, this.val, this.nextVal, this.rowDestination, this.colDestination, this.mergedInto, this.cellIdentifier);
+        return new Cell(this.row, this.col, this.val, this.nextVal, this.rowDestination, this.colDestination, this.mergedInto, this.mergingInto, this.cellIdentifier);
     }
 }
 
@@ -203,6 +214,7 @@ class GameBoard {
                         if (prevNonZeroCell.val === cell.val) {
                             prevNonZeroCell.markGettingMerged();
                             cell.nextVal = cell.val * 2;
+                            cell.markMerging();
 
                             for (let j = i; j < line.length; j++) {
                                 if (!line[j].isEmpty())
