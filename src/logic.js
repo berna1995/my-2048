@@ -21,7 +21,7 @@ class Cell {
         this.rowDestination = rowDestination;
         this.colDestination = colDestination;
         this.mergedInto = mergedInto;
-        this.cellIdentifier = Cell.nextIdentifierAvailable++;
+        this.cellIdentifier = cellIdentifier || Cell.nextIdentifierAvailable++;
     }
 
     isEmpty() {
@@ -111,7 +111,7 @@ class GameBoard {
         return nonEmptyCells;
     }
 
-    applyChanges() {
+    applyMoves() {
         let board = this.copy();
 
         let flatCells = board.cells.flat();
