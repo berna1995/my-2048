@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import { GameBoard, MoveDirection, Cell } from './logic';
-import { MoveAnimation } from './animation_helper';
+import { ValueAnimator } from './animation_helper';
 
 class BackgroundCell extends React.Component {
     render() {
@@ -22,6 +22,7 @@ class ValueCell extends React.Component {
         this.animate = this.animate.bind(this);
         this.resetAnimationStatus();
         this.state = { translationX: 0, translationY: 0 };
+        this.recycled = false;
     }
 
     render() {
@@ -30,13 +31,16 @@ class ValueCell extends React.Component {
             gridColumn: this.props.cell.col + 1,
         };
 
-        if(this.props.cell.isMoving()) {
+        if (this.props.cell.isMoving()) {
             styles['transform'] = 'translate(' + this.state.translationX + 'px,' + this.state.translationY + 'px)';
         }
 
         let cappedValue = Math.min(2048, this.props.cell.val);
         let zIndexClass = this.props.cell.isGettingMerged() ? 'value-cell-merged' : 'value-cell-top';
-        let classes = `value-cell value-${cappedValue} ${zIndexClass}`;
+        let classes = this.recycled ? `value-cell value-${cappedValue} ${zIndexClass}` : 
+                                      `value-cell value-${cappedValue} ${zIndexClass} value-cell-pop-in`;
+
+        this.recycled = true;
 
         return (
             <div className={classes} style={styles} ref={this.divRef} >
@@ -46,21 +50,26 @@ class ValueCell extends React.Component {
     }
 
     componentDidUpdate(prevProps) {
-        if(prevProps.cell.isMoving() && !this.props.cell.isMoving())
+        if (prevProps.cell.isMoving() && !this.props.cell.isMoving())
             this.resetAnimationStatus();
 
         if (this.props.cell.isMoving() && !this.animationDone && this.animationRequestId === 0) {
-            let [xDiff, yDiff, animDuration] = this.computeAnimationTranslation();
-            this.animation = new MoveAnimation(xDiff, yDiff, animDuration);
+            let [axis, valDiff, animDuration] = this.computeAnimationTranslation();
+            this.animation = new ValueAnimator(0, valDiff, animDuration);
+            this.animation.setUpdatedValueCallback(val => {
+                if (axis === 'x')
+                    this.setState({ translationX: val, translationY: 0 });
+                else
+                    this.setState({ translationX: 0, translationY: val });
+            });
             this.animationRequestId = window.requestAnimationFrame(this.animate);
         }
     }
 
     animate(time) {
-        let deltas = this.animation.getMovementDeltas(time);
-        this.setState({ translationX: deltas.xDiff, translationY: deltas.yDiff });
+        this.animation.update(time);
 
-        if (!this.animation.isDone())
+        if (!this.animation.isCompleted())
             this.animationRequestId = window.requestAnimationFrame(this.animate);
         else {
             this.animation = null;
@@ -82,10 +91,16 @@ class ValueCell extends React.Component {
         let boundingBox = this.divRef.current.getBoundingClientRect();
         let cellWidth = boundingBox.width;
         let cellHeight = boundingBox.height;
-        let xDelta = (xCellsDelta * cellWidth) + (borderPx * xCellsDelta);
-        let yDelta = (yCellsDelta * cellHeight) + (borderPx * yCellsDelta);
-        let animDuration = Math.max(Math.abs(xCellsDelta), Math.abs(yCellsDelta)) * ValueCell.TRANSLATION_1_CELL_DURATION;
-        return [xDelta, yDelta, animDuration];
+
+        if (xCellsDelta !== 0) {
+            let xDelta = (xCellsDelta * cellWidth) + (borderPx * xCellsDelta);
+            let animDuration = Math.abs(xCellsDelta) * ValueCell.TRANSLATION_1_CELL_DURATION;
+            return ['x', xDelta, animDuration];
+        } else {
+            let yDelta = (yCellsDelta * cellHeight) + (borderPx * yCellsDelta);
+            let animDuration = Math.abs(yCellsDelta) * ValueCell.TRANSLATION_1_CELL_DURATION;
+            return ['y', yDelta, animDuration];
+        }
     }
 
     resetAnimationStatus() {

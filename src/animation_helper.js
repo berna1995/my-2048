@@ -30,23 +30,33 @@ class AnimationHelper {
     }
 }
 
-class MoveAnimation {
-    constructor(xDiff, yDiff, duration) {
-        this.xDiff = xDiff;
-        this.yDiff = yDiff;
+class ValueAnimator {
+    constructor(fromValue, toValue, duration) {
+        this.fromValue = fromValue;
+        this.toValue = toValue;
+        this.valDiff = toValue - fromValue;
+        this.currentVal = fromValue;
         this.animationHelper = new AnimationHelper(duration);
     }
 
-    getMovementDeltas(currentTime) {
-        let animationPercentage = this.animationHelper.getTimeRatio(currentTime);
-        let currentXDiff = animationPercentage * this.xDiff;
-        let currentYDiff = animationPercentage * this.yDiff;
-        return { xDiff: currentXDiff, yDiff: currentYDiff };
+    setUpdatedValueCallback(callback) {
+        this.updateCallback = callback;
     }
 
-    isDone() {
+    update(currentTime) {
+        let animationProgRatio = this.animationHelper.getTimeRatio(currentTime);
+        this.currentVal = this.fromValue + (this.valDiff * animationProgRatio);
+        if(this.updateCallback)
+            this.updateCallback(this.currentVal);
+    }
+
+    getCurrentValue() {
+        return this.currentVal;
+    }
+
+    isCompleted() {
         return this.animationHelper.isDone();
     }
 }
 
-export { MoveAnimation };
+export { ValueAnimator };
