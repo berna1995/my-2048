@@ -34,9 +34,9 @@ class Board extends React.Component {
             this.acceptInput = true;
             let gameStatus = newBoard.checkGameStatus();
 
-            if(gameStatus == GameStatus.WON) {
+            if(gameStatus === GameStatus.WON) {
                 // TODO: Implement what to do if game is won
-            } else if(gameStatus == GameStatus.LOST) {
+            } else if(gameStatus === GameStatus.LOST) {
                 // TODO: Implement what to do on game lost
             }
 
