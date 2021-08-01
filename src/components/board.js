@@ -1,7 +1,7 @@
 import React from 'react';
 import ValueCell from './valuecell'
 import BackgroundCell from './backgroundcell';
-import { MoveDirection, Cell, GameBoard } from '../logic/logic';
+import { MoveDirection, GameBoard } from '../logic/gamelogic';
 
 class Board extends React.Component {
     constructor(props) {

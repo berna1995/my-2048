@@ -4,6 +4,7 @@ import { SequentialAnimator, ValueAnimator } from '../helpers/animation';
 class ValueCell extends React.Component {
 
     static TRANSLATION_1_CELL_DURATION = 150;
+    static SCALING_DURATION = 100;
 
     constructor(props) {
         super(props);
@@ -44,31 +45,14 @@ class ValueCell extends React.Component {
             this.resetAnimationStatus();
 
         if (this.props.cell.isMoving() && !this.animationDone && this.animationRequestId === 0) {
-            let [axis, valDiff, animDuration] = this.computeAnimationTranslation();
-            let composedAnimator = new SequentialAnimator();
-            let translationAnimator = new ValueAnimator(0, valDiff, animDuration);
-            translationAnimator.setUpdatedValueCallback(val => {
-                if (axis === 'x')
-                    this.setState({ translationX: val, translationY: 0 });
-                else
-                    this.setState({ translationX: 0, translationY: val });
-            });
-            composedAnimator.addAnimator(translationAnimator);
-            if (this.props.cell.isMergingInto()) {
-                let firstScaleAnimator = new ValueAnimator(100, 110, 100);
-                firstScaleAnimator.setUpdatedValueCallback(val => {
-                    this.setState({ scaleFactor: val });
-                });
-                let secondScaleAnimator = new ValueAnimator(110, 100, 100);
-                secondScaleAnimator.setUpdatedValueCallback(val => {
-                    this.setState({ scaleFactor: val });
-                });
-                composedAnimator.addAnimator(firstScaleAnimator);
-                composedAnimator.addAnimator(secondScaleAnimator);
-            }
-            this.animation = composedAnimator;
+            this.animation = this.prepareAnimation();
             this.animationRequestId = window.requestAnimationFrame(this.animate);
         }
+    }
+
+    componentWillUnmount() {
+        if (this.animationRequestId !== 0)
+            window.cancelAnimationFrame(this.animationRequestId);
     }
 
     animate(time) {
@@ -84,28 +68,36 @@ class ValueCell extends React.Component {
         }
     }
 
-    componentWillUnmount() {
-        if (this.animationRequestId !== 0)
-            window.cancelAnimationFrame(this.animationRequestId);
-    }
+    prepareAnimation() {
+        let totalAnimator = new SequentialAnimator();
 
-    computeAnimationTranslation() {
+        // Translation
         let xCellsDelta = this.props.cell.colDestination - this.props.cell.col;
         let yCellsDelta = this.props.cell.rowDestination - this.props.cell.row;
         let borderPx = Number.parseInt(getComputedStyle(this.divRef.current).getPropertyValue('--grid-border').trim().replace("px", ""));
         let boundingBox = this.divRef.current.getBoundingClientRect();
         let cellWidth = boundingBox.width;
         let cellHeight = boundingBox.height;
+        let xAxisMove = xCellsDelta !== 0;
+        let delta = xAxisMove ? (xCellsDelta * cellWidth) + (borderPx * xCellsDelta) : (yCellsDelta * cellHeight) + (borderPx * yCellsDelta);
+        let cellsDelta = xAxisMove ? xCellsDelta : yCellsDelta;
+        let translationDuration = Math.abs(cellsDelta) * ValueCell.TRANSLATION_1_CELL_DURATION;
+        let translationAnimator = new ValueAnimator(0, delta, translationDuration).setUpdatedValueCallback(val => {
+            let xVal = xCellsDelta !== 0 ? val : 0;
+            let yVal = yCellsDelta !== 0 ? val : 0;
+            this.setState({ translationX: xVal, translationY: yVal });
+        });
+        totalAnimator.addAnimator(translationAnimator);
 
-        if (xCellsDelta !== 0) {
-            let xDelta = (xCellsDelta * cellWidth) + (borderPx * xCellsDelta);
-            let animDuration = Math.abs(xCellsDelta) * ValueCell.TRANSLATION_1_CELL_DURATION;
-            return ['x', xDelta, animDuration];
-        } else {
-            let yDelta = (yCellsDelta * cellHeight) + (borderPx * yCellsDelta);
-            let animDuration = Math.abs(yCellsDelta) * ValueCell.TRANSLATION_1_CELL_DURATION;
-            return ['y', yDelta, animDuration];
+        // Merge animation, only if cell is merging
+        if (this.props.cell.isMergingInto()) {
+            let scaleAnimator = new ValueAnimator(100, 110, ValueCell.SCALING_DURATION, true).setUpdatedValueCallback(val => {
+                this.setState({ scaleFactor: val });
+            });
+            totalAnimator.addAnimator(scaleAnimator);
         }
+
+        return totalAnimator;
     }
 
     resetAnimationStatus() {

@@ -24,23 +24,25 @@ class AnimationHelper {
         return this.animationDone;
     }
 
-    reset() {
-        this.startTime = null;
+    reset(startTime) {
+        this.startTime = startTime;
         this.animationDone = false;
     }
 }
 
 class ValueAnimator {
-    constructor(fromValue, toValue, duration) {
+    constructor(fromValue, toValue, duration, reverse = false) {
         this.fromValue = fromValue;
         this.toValue = toValue;
         this.valDiff = toValue - fromValue;
         this.currentVal = fromValue;
+        this.reverse = reverse;
         this.animationHelper = new AnimationHelper(duration);
     }
 
     setUpdatedValueCallback(callback) {
         this.updateCallback = callback;
+        return this;
     }
 
     update(currentTime) {
@@ -48,6 +50,15 @@ class ValueAnimator {
         this.currentVal = this.fromValue + (this.valDiff * animationProgRatio);
         if (this.updateCallback)
             this.updateCallback(this.currentVal);
+        if (this.animationHelper.isDone() && this.reverse) {
+            this.reverse = false;
+            this.animationHelper.reset(currentTime);
+            let from = this.fromValue;
+            this.fromValue = this.toValue;
+            this.toValue = from;
+            this.valDiff = this.toValue - this.fromValue;
+            this.currentVal = this.fromValue;
+        }
     }
 
     getCurrentValue() {
