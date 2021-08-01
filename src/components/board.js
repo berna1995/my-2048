@@ -1,7 +1,7 @@
 import React from 'react';
 import ValueCell from './valuecell'
 import BackgroundCell from './backgroundcell';
-import { MoveDirection, GameBoard } from '../logic/gamelogic';
+import { MoveDirection, GameBoard, GameStatus } from '../logic/gamelogic';
 
 class Board extends React.Component {
     constructor(props) {
@@ -9,8 +9,7 @@ class Board extends React.Component {
         this.handleKeyDown = this.handleKeyDown.bind(this);
         this.handleAnimationDone = this.handleAnimationDone.bind(this);
 
-        let gameBoard = new GameBoard(props.rows, props.columns);
-        gameBoard.spawnCells(1);
+        let gameBoard = new GameBoard(props.rows, props.columns).spawnCells(1, 2, true);;
 
         this.state = { board: gameBoard };
         this.acceptInput = true;
@@ -31,9 +30,16 @@ class Board extends React.Component {
         this.expectedAnimations -= 1;
 
         if (this.expectedAnimations === 0) {
-            let newBoard = this.state.board.applyMoves();
-            newBoard.spawnCells(1);
+            let newBoard = this.state.board.applyMoves().spawnCells(1, 2 , true);
             this.acceptInput = true;
+            let gameStatus = newBoard.checkGameStatus();
+
+            if(gameStatus == GameStatus.WON) {
+                // TODO: Implement what to do if game is won
+            } else if(gameStatus == GameStatus.LOST) {
+                // TODO: Implement what to do on game lost
+            }
+
             this.setState({ board: newBoard });
         }
     }
@@ -54,7 +60,7 @@ class Board extends React.Component {
             default: return;
         }
 
-        newBoard = oldBoard.move(moveDir);
+        newBoard = oldBoard.move(moveDir, false);
         if (newBoard !== oldBoard) {
             this.acceptInput = false;
             this.expectedAnimations = newBoard.cells.flat().reduce((acc, cell) => acc + (cell.isMoving() ? 1 : 0), 0);

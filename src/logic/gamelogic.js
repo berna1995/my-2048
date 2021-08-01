@@ -5,6 +5,12 @@ const MoveDirection = {
     LEFT: 3
 }
 
+const GameStatus = {
+    WON: 0,
+    LOST: 1,
+    YET_UNDEFINED: 2
+}
+
 function getRandomInt(max) {
     return Math.floor(Math.random() * max);
 }
@@ -122,8 +128,14 @@ class GameBoard {
         return nonEmptyCells;
     }
 
-    applyMoves() {
-        let board = this.copy();
+    /**
+     * 
+     * @param {boolean} inPlace specify if doing the operation in place or return a new board with the pending moves applied
+     * @returns the board with the moves applied, or a copy of the board with the moves applied if inPlace=false
+     */
+
+    applyMoves(inPlace = false) {
+        let board = inPlace ? this : this.copy();
 
         let flatCells = board.cells.flat();
 
@@ -145,10 +157,19 @@ class GameBoard {
     }
 
 
-    spawnCells(n, value = 2) {
+    /**
+     * 
+     * @param {number} n the number of cells to spawn
+     * @param {number} value the value of the cells spawned
+     * @param {boolean} inPlace specify if doing the operation in place or return a board copy with the spawned cells
+     * @returns the board ref itself or the new board with the spawned cells, the same board ref if it couldn't spawn any even if inPlace=false
+     */
+
+    spawnCells(n, value = 2, inPlace = false) {
+        let board = inPlace ? this : this.copy(); 
         let emptyCells = [];
 
-        this.cells.forEach(row => {
+        board.cells.forEach(row => {
             row.forEach(cell => {
                 if (cell.isEmpty())
                     emptyCells.push(cell);
@@ -157,20 +178,27 @@ class GameBoard {
 
 
         if (emptyCells.length < n)
-            return false;
+            return this;
 
         for (let i = 0; i < n; i++) {
             let cIndex = getRandomInt(emptyCells.length);
             let emptyCell = emptyCells[cIndex];
-            this.cells[emptyCell.row][emptyCell.col].val = value;
+            board.cells[emptyCell.row][emptyCell.col].val = value;
             emptyCells.splice(cIndex, 1);
         }
 
-        return true;
+        return board;
     }
 
-    move(moveDirection) {
-        let board = this.copy();
+    /**
+     * 
+     * @param {MoveDirection} moveDirection the direction you want the tiles to go
+     * @param {boolean} inPlace specify if doing the operation in place or return a board copy with the diffs applied
+     * @returns a new board with the tiles moved if any changes happened, otherwise the same board ref, even if inPlace=false
+     */
+
+    move(moveDirection, inPlace = false) {
+        let board = inPlace ? this : this.copy();
         let lines = [];
 
         switch (moveDirection) {
@@ -238,9 +266,31 @@ class GameBoard {
         return board;
     }
 
+    /**
+     * 
+     * @param {number} winConditionThreshold the win condition magic number, 2048 normally
+     * @returns the current game status [GameStatus.WON, GameStatus.LOST, GameStatus.YET_UNDEFINED]
+     */
+
+    checkGameStatus(winConditionThreshold=2048) {
+        let cells = this.cells.flat();
+        
+        let hasWon = cells.some(cell => cell.val >= winConditionThreshold);
+        if(hasWon) 
+            return GameStatus.WON;
+        
+        let possibleMoves = [MoveDirection.UP, MoveDirection.DOWN, MoveDirection.LEFT, MoveDirection.RIGHT];
+        let hasMoveAvailable = possibleMoves.some(move => this.move(move) !== this);
+        
+        if(hasMoveAvailable)
+            return GameStatus.YET_UNDEFINED;
+        else
+            return GameStatus.LOST;
+    }
+
     toString() {
         return this.cells.map(row => row.map(cell => cell.val).join(' ')).join('\r\n');
     }
 }
 
-export { MoveDirection, Cell, GameBoard }
+export { GameStatus, MoveDirection, Cell, GameBoard }
