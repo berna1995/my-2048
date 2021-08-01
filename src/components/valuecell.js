@@ -94,7 +94,7 @@ class ValueCell extends React.Component {
 
         // Merge animation, only if cell is merging
         if (this.props.cell.isMergingInto()) {
-            let scaleAnimator = new ValueAnimator(100, 110, ValueCell.SCALING_DURATION, true).setUpdatedValueCallback(val => {
+            let scaleAnimator = new ValueAnimator(100, 115, ValueCell.SCALING_DURATION, true).setUpdatedValueCallback(val => {
                 this.setState({ scaleFactor: val });
             });
             totalAnimator.addAnimator(scaleAnimator);
