@@ -3,7 +3,7 @@ import { SequentialAnimator, ValueAnimator } from '../helpers/animation';
 
 class ValueCell extends React.Component {
 
-    static TRANSLATION_1_CELL_DURATION = 150;
+    static TRANSLATION_1_CELL_DURATION = 100;
     static SCALING_DURATION = 100;
 
     constructor(props) {
@@ -25,13 +25,16 @@ class ValueCell extends React.Component {
             styles['transform'] = `translate(${this.state.translationX}px, ${this.state.translationY}px) scale(${this.state.scaleFactor}%)`
         }
 
+        let classesArray = [];
+        classesArray.push('value-cell');
+        classesArray.push(`value-${Math.min(2048, this.props.cell.val)}`);
+        classesArray.push(this.props.cell.isGettingMerged() ? 'value-cell-merged' : 'value-cell-top');
+        if(!this.recycled) {
+            classesArray.push('value-cell-pop-in')
+            this.recycled = true;
+        }
 
-        let cappedValue = Math.min(2048, this.props.cell.val);
-        let zIndexClass = this.props.cell.isGettingMerged() ? 'value-cell-merged' : 'value-cell-top';
-        let classes = this.recycled ? `value-cell value-${cappedValue} ${zIndexClass}` :
-            `value-cell value-${cappedValue} ${zIndexClass} value-cell-pop-in`;
-
-        this.recycled = true;
+        let classes = classesArray.join(' ');
 
         return (
             <div className={classes} style={styles} ref={this.divRef} >
