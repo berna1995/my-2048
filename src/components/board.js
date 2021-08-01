@@ -8,12 +8,22 @@ class Board extends React.Component {
         super(props);
         this.handleKeyDown = this.handleKeyDown.bind(this);
         this.handleAnimationDone = this.handleAnimationDone.bind(this);
+        this.reset = this.reset.bind(this);
 
-        let gameBoard = new GameBoard(props.rows, props.columns).spawnCells(1, 2, true);;
-
+        let gameBoard = new GameBoard(props.rows, props.columns).spawnCells(1, 2, true);
         this.state = { board: gameBoard };
+
         this.acceptInput = true;
         this.expectedAnimations = -1;
+    }
+
+    reset() {
+        let gameBoard = new GameBoard(this.props.rows, this.props.columns).spawnCells(1, 2, true);
+        this.acceptInput = true;
+        this.expectedAnimations = -1;
+        this.setState({
+            board: gameBoard
+        });
     }
 
     generateBackgroundCells(rows, columns) {
@@ -70,6 +80,7 @@ class Board extends React.Component {
 
     componentDidMount() {
         document.addEventListener("keydown", this.handleKeyDown);
+        this.props.registerResetCallback(this.reset);
     }
 
     componentWillUnmount() {
@@ -84,7 +95,7 @@ class Board extends React.Component {
         });
 
         return (
-            <div className="gamegrid">
+            <div className="gamegrid" style={{'--grid-rows': this.props.rows, '--grid-cols': this.props.columns}}>
                 {bgCells}
                 {valueCells}
             </div>

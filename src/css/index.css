@@ -2,6 +2,9 @@
     --grid-border: 8px;
     --grid-rows: 4;
     --grid-cols: 4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 html, body {
@@ -11,28 +14,41 @@ html, body {
     font-family: Avant Garde,Avantgarde,Century Gothic,CenturyGothic,AppleGothic,sans-serif;
 }
 
-.header {
-    font-size: 2.5em;
-    text-align: center;
+h1 {
+    font-size: 3.5em;
+    margin: 0;
 }
 
-.gamecontainer {
+.header-line-1 {
+}
+
+.header-line-2 {
     display: flex;
-    justify-content: center;
-    align-content: center;
-    flex-direction: column;
-    height: 100%;
+    align-items: baseline;
+    flex-direction: row;
     width: 100%;
 }
 
+.new-game-btn {
+    margin-left: auto;
+}
+
+.gamecontainer {
+    margin-top: 2%;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    flex-direction: column;
+    row-gap: 10px;
+}
+
 .gamegrid {
-    margin: auto;
     display: grid;
     grid-template-columns: repeat(var(--grid-cols), 1fr);
     grid-template-rows: repeat(var(--grid-rows), 1fr);
     gap: var(--grid-border);
-    width: 50vmin;
-    height: 50vmin;
+    width: 55vmin;
+    height: 55vmin;
     background-color: #bbada0;
     border: #bbada0 solid 8px;
     border-radius: 8px;
