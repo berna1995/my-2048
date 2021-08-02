@@ -18,7 +18,6 @@ class Header extends React.Component {
 }
 
 class GridSizeSelector extends React.Component {
-
     constructor(props) {
         super(props);
         this.onChange = this.onChange.bind(this);
@@ -54,6 +53,16 @@ class NewGameButton extends React.Component {
     render() {
         return (
             <button className="new-game-btn" onClick={this.props.onNewGameClicked}>New Game</button>
+        );
+    }
+}
+
+class Footer extends React.Component {
+    render() {
+        const lines = this.props.lines.map(line => <> <span>{line}</span> <br></br> </>)
+
+        return (
+            <div className="footer">{lines}</div>
         );
     }
 }
@@ -99,6 +108,7 @@ class Game extends React.Component {
             <div className="gamecontainer">
                 <Header options={this.gridOptions} onGridSizeChanged={this.handleGridResize} onNewGameClicked={this.handleNewGameClicked}/>
                 <Board key={this.state.rows * this.state.columns} rows={this.state.rows} columns={this.state.columns} registerResetCallback={this.setNewGameHandler}/>
+                <Footer lines={["Use arrow keys to slide the tiles.", "Game developed by Matteo Bernabito."]}/>
             </div>
         );
     }

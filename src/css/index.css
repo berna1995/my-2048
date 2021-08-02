@@ -31,6 +31,12 @@ h1 {
     margin-left: auto;
 }
 
+.footer {
+    font-size: 0.9em;
+    margin-top: 10px;
+    overflow-wrap: break-word;
+}
+
 .gamecontainer {
     margin-top: 2%;
     display: flex;
@@ -50,6 +56,7 @@ h1 {
     background-color: #bbada0;
     border: #bbada0 solid 8px;
     border-radius: 8px;
+    margin-top: 10px;
 }
 
 .value-cell {

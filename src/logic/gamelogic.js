@@ -1,3 +1,5 @@
+import { getRandomInt } from "../utils/utils";
+
 const MoveDirection = {
     UP: 0,
     RIGHT: 1,
@@ -9,10 +11,6 @@ const GameStatus = {
     WON: 0,
     LOST: 1,
     YET_UNDEFINED: 2
-}
-
-function getRandomInt(max) {
-    return Math.floor(Math.random() * max);
 }
 
 class Cell {
