@@ -11,8 +11,7 @@ class Board extends React.Component {
         this.reset = this.reset.bind(this);
 
         let gameBoard = new GameBoard(props.rows, props.columns).spawnCells(1, 2, true);
-        this.state = { board: gameBoard };
-
+        this.state = { board: gameBoard, gameStatus: GameStatus.YET_UNDEFINED };
         this.acceptInput = true;
         this.expectedAnimations = -1;
     }
@@ -22,7 +21,8 @@ class Board extends React.Component {
         this.acceptInput = true;
         this.expectedAnimations = -1;
         this.setState({
-            board: gameBoard
+            board: gameBoard,
+            gameStatus: GameStatus.YET_UNDEFINED
         });
     }
 
@@ -41,16 +41,12 @@ class Board extends React.Component {
 
         if (this.expectedAnimations === 0) {
             let newBoard = this.state.board.applyMoves().spawnCells(1, 2 , true);
-            this.acceptInput = true;
-            let gameStatus = newBoard.checkGameStatus();
+            let currentStatus = newBoard.checkGameStatus();
 
-            if(gameStatus === GameStatus.WON) {
-                // TODO: Implement what to do if game is won
-            } else if(gameStatus === GameStatus.LOST) {
-                // TODO: Implement what to do on game lost
-            }
+            if(currentStatus === GameStatus.YET_UNDEFINED)
+                this.acceptInput = true;
 
-            this.setState({ board: newBoard });
+            this.setState({ board: newBoard, gameStatus: currentStatus});
         }
     }
 
@@ -93,11 +89,17 @@ class Board extends React.Component {
         const valueCells = nonEmptyCells.map((c) => {
             return <ValueCell key={c.cellIdentifier} cell={c} animationDoneCallback={this.handleAnimationDone} />
         });
+        const gridOverlay = [];
+        if(this.state.gameStatus === GameStatus.WON)
+            gridOverlay.push(<div className="grid-overlay">Gratz, you've won!</div>);
+        else if (this.state.gameStatus === GameStatus.LOST)
+            gridOverlay.push(<div className="grid-overlay">You lost, will be better next time!</div>)
 
         return (
             <div className="gamegrid" style={{'--grid-rows': this.props.rows, '--grid-cols': this.props.columns}}>
                 {bgCells}
                 {valueCells}
+                {gridOverlay}
             </div>
         );
     }

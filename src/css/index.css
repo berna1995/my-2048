@@ -66,6 +66,22 @@ h1 {
     font-weight: bold;
 }
 
+.grid-overlay {
+    background-color: black;
+    opacity: 0.8;
+    grid-column: 1 / calc(var(--grid-cols) + 1);
+    grid-row: 1 / calc(var(--grid-rows) + 1);
+    z-index: 10;
+    color: white;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    border-radius: 8px;
+    font-size: 2em;
+
+}
+
 .value-cell-top {
     z-index: 2;
 }
