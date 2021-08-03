@@ -14,7 +14,7 @@ class Board extends React.Component {
     }
 
     reset(isConstructor = false) {
-        const gameBoard = new GameBoard(this.props.rows, this.props.columns).spawnCells(1, 2, true);
+        const gameBoard = new GameBoard(this.props.rows, this.props.columns).spawnCells(2, 2, true);
         this.acceptInput = true;
         this.expectedAnimations = -1;
         this.autoMode = false;
@@ -45,7 +45,7 @@ class Board extends React.Component {
         this.expectedAnimations -= 1;
 
         if (this.expectedAnimations === 0) {
-            let newBoard = this.state.board.applyMoves().spawnCells(1, 2, true);
+            let newBoard = this.state.board.applyMoves().spawnCells(1, Math.random() < 0.9 ? 2 : 4, true);
             let currentStatus = newBoard.checkGameStatus();
 
             if (currentStatus === GameStatus.YET_UNDEFINED)
