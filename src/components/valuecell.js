@@ -3,7 +3,7 @@ import { SequentialAnimator, ValueAnimator } from '../helpers/animation';
 
 class ValueCell extends React.Component {
 
-    static TRANSLATION_1_CELL_DURATION = 100;
+    static TRANSLATION_1_CELL_DURATION = 50;
     static SCALING_DURATION = 100;
 
     constructor(props) {
