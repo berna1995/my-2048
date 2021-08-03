@@ -1,5 +1,6 @@
 import React from 'react';
-import Board from './board'
+import Board from './board';
+import { Button, Dropdown, Ref } from 'semantic-ui-react';
 
 class Header extends React.Component {
     render() {
@@ -9,8 +10,8 @@ class Header extends React.Component {
                     <h1> 2048 </h1>
                 </div>
                 <div className="header-line-2">
-                    <GridSizeSelector options={this.props.options} onGridSizeChanged={this.props.onGridSizeChanged} />
-                    <NewGameButton onNewGameClicked={this.props.onNewGameClicked}/>
+                    <NewGameButton onNewGameClicked={this.props.onNewGameClicked} />
+                    <GridSizeSelector options={this.props.options} onGridSizeChanged={this.props.onGridSizeChanged} defaultGridSize={this.props.defaultGridSize} />
                 </div>
             </>
         );
@@ -21,38 +22,48 @@ class GridSizeSelector extends React.Component {
     constructor(props) {
         super(props);
         this.onChange = this.onChange.bind(this);
+        this.myRef = React.createRef();
     }
 
-    getOptions() {
-        let options = [];
-        this.props.options.forEach(opt => {
-            const optString = `${opt} x ${opt}`;
-            options.push(<option key={opt} value={opt}>{optString}</option>)
-        });
-        return options;
-    }
-
-    onChange(event) {
-        event.target.blur();
-        this.props.onGridSizeChanged(parseInt(event.target.value));
+    onChange(event, data) {
+        this.myRef.current.blur();
+        this.props.onGridSizeChanged(parseInt(data.value));
     }
 
     render() {
         return (
-            <form action="#">
-                <label htmlFor="sizeselector">Grid size: </label>
-                <select id="sizeselector" onChange={this.onChange}>
-                    {this.getOptions()}
-                </select>
-            </form>
+            <Ref innerRef={this.myRef}>
+                <Dropdown
+                    text='Grid Size'
+                    icon='grid layout'
+                    labeled
+                    floating
+                    button
+                    className='icon'
+                    options={this.props.options}
+                    defaultValue={this.props.defaultGridSize}
+                    onChange={this.onChange}
+                    closeOnBlur={true}
+                />
+            </Ref>
         );
     }
 }
 
 class NewGameButton extends React.Component {
+    constructor(props) {
+        super(props);
+        this.onClick = this.onClick.bind(this);
+    }
+
+    onClick(event) {
+        event.target.blur();
+        this.props.onNewGameClicked();
+    }
+
     render() {
         return (
-            <button className="new-game-btn" onClick={this.props.onNewGameClicked}>New Game</button>
+            <Button color="teal" onClick={this.onClick}>New Game</Button>
         );
     }
 }
@@ -80,7 +91,7 @@ class Game extends React.Component {
         };
         this.gridOptions = []
         for (let i = 4; i <= 8; i++)
-            this.gridOptions.push(i);
+            this.gridOptions.push({ key: i, text: i.toString() + " x " + i.toString(), value: i });
 
         this.handleGridResize = this.handleGridResize.bind(this);
         this.handleNewGameClicked = this.handleNewGameClicked.bind(this);
@@ -99,16 +110,16 @@ class Game extends React.Component {
     }
 
     handleNewGameClicked() {
-        if(this.newGameHandler)
+        if (this.newGameHandler)
             this.newGameHandler();
     }
 
     render() {
         return (
             <div className="gamecontainer">
-                <Header options={this.gridOptions} onGridSizeChanged={this.handleGridResize} onNewGameClicked={this.handleNewGameClicked}/>
-                <Board key={this.state.rows * this.state.columns} rows={this.state.rows} columns={this.state.columns} registerResetCallback={this.setNewGameHandler}/>
-                <Footer lines={["Use arrow keys to slide the tiles.", "Game developed by Matteo Bernabito."]}/>
+                <Header options={this.gridOptions} defaultGridSize={this.gridOptions[0].value} onGridSizeChanged={this.handleGridResize} onNewGameClicked={this.handleNewGameClicked} />
+                <Board key={this.state.rows * this.state.columns} rows={this.state.rows} columns={this.state.columns} registerResetCallback={this.setNewGameHandler} />
+                <Footer lines={["Use arrow keys to slide the tiles.", "Game developed by Matteo Bernabito."]} />
             </div>
         );
     }
