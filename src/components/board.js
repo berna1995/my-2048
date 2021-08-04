@@ -51,6 +51,8 @@ class Board extends React.Component {
             if (currentStatus === GameStatus.YET_UNDEFINED)
                 this.acceptInput = true;
 
+            this.props.onNewScore(newBoard.getCurrentScore());
+
             if (this.autoMode && currentStatus === GameStatus.YET_UNDEFINED)
                 this.setState({ board: newBoard, gameStatus: currentStatus }, this.autoPlay);
             else

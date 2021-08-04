@@ -12,19 +12,58 @@ html, body {
     height: 100%;
     margin: 0; padding: 0;
     background-color: whitesmoke;
-    font-family: Avant Garde,Avantgarde,Century Gothic,CenturyGothic,AppleGothic,sans-serif;
+    font-family: Lato,'Helvetica Neue',Arial,Helvetica,sans-serif;
 }
 
-h1 {
+.game-title {
     font-size: 3.5em;
-    margin: 0;
+    font-weight: bold;
+    margin-right: auto;
+}
+
+.header-line-1 {
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    justify-content: flex-end;
+    width: 100%;
+    column-gap: 10px;
+}
+
+.score-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #21ba45;
+    padding: 5px;
+    border-radius: 3px;
+}
+
+.score-title {
+    text-transform: uppercase;
+    font-weight: 600;
+    color: white;
+}
+
+.score-value {
+    color: white;
+}
+.score-value > p {
+    animation: score-animation 0.3s ease-in-out;
 }
 
 .header-line-2 {
     display: flex;
-    align-items: baseline;
     flex-direction: row;
+    align-items: flex-end;
+    justify-content: flex-end;
+    column-gap: 10px;
     width: 100%;
+}
+
+.game-exp {
+    margin-right: auto;
+    font-size: 1em;
 }
 
 .footer {
@@ -62,7 +101,7 @@ h1 {
     flex-direction: column;
     text-align: center;
     border-radius: 10px;
-    font-size: 2vw;
+    font-size: 2.2vw;
     font-weight: bold;
 }
 
@@ -150,4 +189,13 @@ h1 {
 @keyframes join-animation {
     from { transform: scale(0%); }
     to { transform: scale(100%); }
+}
+
+@keyframes score-animation {
+    from { 
+        transform: translate(0, -100%) scale(0%);
+    }
+    to { 
+        transform: translate(0, 0) scale(100%);
+    }
 }

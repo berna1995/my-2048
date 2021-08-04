@@ -7,11 +7,14 @@ class Header extends React.Component {
         return (
             <>
                 <div className="header-line-1">
-                    <h1> 2048 </h1>
+                    <div className="game-title">2048</div>
+                    <ScoreDisplay title="Current" value={this.props.currentScore} />
+                    <ScoreDisplay title="Top Score" value={this.props.topScore} />
                 </div>
                 <div className="header-line-2">
-                    <NewGameButton onNewGameClicked={this.props.onNewGameClicked} />
+                    <div className="game-exp">Use arrow keys to slide the tiles.</div>
                     <GridSizeSelector options={this.props.options} onGridSizeChanged={this.props.onGridSizeChanged} defaultGridSize={this.props.defaultGridSize} />
+                    <NewGameButton onNewGameClicked={this.props.onNewGameClicked} />
                 </div>
             </>
         );
@@ -34,6 +37,7 @@ class GridSizeSelector extends React.Component {
         return (
             <Ref innerRef={this.myRef}>
                 <Dropdown
+                    style={{margin: 0}}
                     text='Grid Size'
                     icon='grid layout'
                     labeled
@@ -63,17 +67,24 @@ class NewGameButton extends React.Component {
 
     render() {
         return (
-            <Button color="teal" onClick={this.onClick}>New Game</Button>
+            <Button style={{margin: 0}} color="teal" onClick={this.onClick}>New Game</Button>
         );
     }
 }
 
-class Footer extends React.Component {
+class ScoreDisplay extends React.Component {
     render() {
-        const lines = this.props.lines.map(line => <> <span>{line}</span> <br></br> </>)
-
         return (
-            <div className="footer">{lines}</div>
+            <div className="score-container">
+                <div className="score-title">
+                    {this.props.title}
+                </div>
+                <div className="score-value">
+                    <p key={this.props.value}> 
+                        {this.props.value} 
+                    </p>
+                </div>
+            </div>
         );
     }
 }
@@ -87,7 +98,8 @@ class Game extends React.Component {
         super();
         this.state = {
             rows: Game.DEFAULT_ROWS,
-            columns: Game.DEFAULT_COLS
+            columns: Game.DEFAULT_COLS,
+            currentScore: 0
         };
         this.gridOptions = []
         for (let i = 4; i <= 8; i++)
@@ -96,12 +108,14 @@ class Game extends React.Component {
         this.handleGridResize = this.handleGridResize.bind(this);
         this.handleNewGameClicked = this.handleNewGameClicked.bind(this);
         this.setNewGameHandler = this.setNewGameHandler.bind(this);
+        this.handleNewScore = this.handleNewScore.bind(this);
     }
 
     handleGridResize(newSize) {
         this.setState({
             rows: newSize,
-            columns: newSize
+            columns: newSize,
+            currentScore: 0
         });
     }
 
@@ -112,14 +126,31 @@ class Game extends React.Component {
     handleNewGameClicked() {
         if (this.newGameHandler)
             this.newGameHandler();
+        this.setState({currentScore: 0});
+    }
+
+    handleNewScore(newScore) {
+        this.setState({currentScore: newScore});
     }
 
     render() {
         return (
             <div className="gamecontainer">
-                <Header options={this.gridOptions} defaultGridSize={this.gridOptions[0].value} onGridSizeChanged={this.handleGridResize} onNewGameClicked={this.handleNewGameClicked} />
-                <Board key={this.state.rows * this.state.columns} rows={this.state.rows} columns={this.state.columns} registerResetCallback={this.setNewGameHandler} />
-                <Footer lines={["Use arrow keys to slide the tiles.", "Game developed by Matteo Bernabito."]} />
+                <Header 
+                    options={this.gridOptions} 
+                    defaultGridSize={this.gridOptions[0].value} 
+                    onGridSizeChanged={this.handleGridResize} 
+                    onNewGameClicked={this.handleNewGameClicked} 
+                    currentScore={this.state.currentScore}
+                    topScore={0}
+                />
+                <Board 
+                    key={this.state.rows * this.state.columns} 
+                    rows={this.state.rows} columns={this.state.columns} 
+                    registerResetCallback={this.setNewGameHandler} 
+                    onNewScore={this.handleNewScore}
+                />
+                <div className="footer">Game developed by Matteo Bernabito.</div>
             </div>
         );
     }

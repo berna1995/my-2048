@@ -286,6 +286,14 @@ class GameBoard {
             return GameStatus.LOST;
     }
 
+    /**
+     * @returns the actual score, a.k.a. the sum of the values of the cells
+     */
+
+    getCurrentScore() {
+        return this.cells.flat().reduce((acc, cell) => acc + cell.val, 0);
+    }
+
     toString() {
         return this.cells.map(row => row.map(cell => cell.val).join(' ')).join('\r\n');
     }
