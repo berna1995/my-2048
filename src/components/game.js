@@ -156,7 +156,10 @@ class Game extends React.Component {
                     registerResetCallback={this.setNewGameHandler} 
                     onNewScore={this.handleNewScore}
                 />
-                <div className="footer">Game developed by Matteo Bernabito.</div>
+                <div className="footer">
+                    Game developed by Matteo Bernabito.<br/>
+                    Take a look at the source on my <a href="https://github.com/berna1995/my-2048">Github</a>.
+                </div>
             </div>
         );
     }
