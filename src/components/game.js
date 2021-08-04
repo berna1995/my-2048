@@ -1,6 +1,7 @@
 import React from 'react';
 import Board from './board';
 import { Button, Dropdown, Ref } from 'semantic-ui-react';
+import Storage from '../storage/storage';
 
 class Header extends React.Component {
     render() {
@@ -109,6 +110,8 @@ class Game extends React.Component {
         this.handleNewGameClicked = this.handleNewGameClicked.bind(this);
         this.setNewGameHandler = this.setNewGameHandler.bind(this);
         this.handleNewScore = this.handleNewScore.bind(this);
+
+        this.storage = new Storage();
     }
 
     handleGridResize(newSize) {
@@ -130,6 +133,9 @@ class Game extends React.Component {
     }
 
     handleNewScore(newScore) {
+        const bestScore = this.storage.getHighestScore(this.state.rows);
+        if(newScore > bestScore)
+            this.storage.setHighestScore(this.state.rows, newScore);
         this.setState({currentScore: newScore});
     }
 
@@ -142,7 +148,7 @@ class Game extends React.Component {
                     onGridSizeChanged={this.handleGridResize} 
                     onNewGameClicked={this.handleNewGameClicked} 
                     currentScore={this.state.currentScore}
-                    topScore={0}
+                    topScore={this.storage.getHighestScore(this.state.rows)}
                 />
                 <Board 
                     key={this.state.rows * this.state.columns} 
