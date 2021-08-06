@@ -9,8 +9,8 @@ class Header extends React.Component {
             <>
                 <div className="header-line-1">
                     <div className="game-title">2048</div>
-                    <ScoreDisplay title="Current" value={this.props.currentScore} />
-                    <ScoreDisplay title="Top Score" value={this.props.topScore} />
+                    <ScoreDisplay title="Current" bgcolor="#21ba45" value={this.props.currentScore} />
+                    <ScoreDisplay title="Top Score" bgcolor="#2185d0" value={this.props.topScore} />
                 </div>
                 <div className="header-line-2">
                     <div className="game-exp">Use arrow keys to slide the tiles.</div>
@@ -76,7 +76,7 @@ class NewGameButton extends React.Component {
 class ScoreDisplay extends React.Component {
     render() {
         return (
-            <div className="score-container">
+            <div style={{backgroundColor: this.props.bgcolor}} className="score-container">
                 <div className="score-title">
                     {this.props.title}
                 </div>
