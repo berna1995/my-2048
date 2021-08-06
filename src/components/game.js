@@ -109,7 +109,7 @@ class Game extends React.Component {
         this.handleGridResize = this.handleGridResize.bind(this);
         this.handleNewGameClicked = this.handleNewGameClicked.bind(this);
         this.setNewGameHandler = this.setNewGameHandler.bind(this);
-        this.handleNewScore = this.handleNewScore.bind(this);
+        this.handleMoveDone = this.handleMoveDone.bind(this);
 
         this.storage = new Storage();
     }
@@ -132,7 +132,13 @@ class Game extends React.Component {
         this.setState({currentScore: 0});
     }
 
-    handleNewScore(newScore) {
+    handleMoveDone(moveScore) {
+        console.log(moveScore);
+        console.log(this.state)
+        if(moveScore === 0)
+            return;
+        
+        const newScore = this.state.currentScore + moveScore;
         const bestScore = this.storage.getHighestScore(this.state.rows);
         if(newScore > bestScore)
             this.storage.setHighestScore(this.state.rows, newScore);
@@ -154,7 +160,7 @@ class Game extends React.Component {
                     key={this.state.rows * this.state.columns} 
                     rows={this.state.rows} columns={this.state.columns} 
                     registerResetCallback={this.setNewGameHandler} 
-                    onNewScore={this.handleNewScore}
+                    onMoveDone={this.handleMoveDone}
                 />
                 <div className="footer">
                     Game developed by Matteo Bernabito.<br/>

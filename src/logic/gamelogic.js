@@ -287,13 +287,13 @@ class GameBoard {
     }
 
     /**
-     * @returns the actual score, a.k.a. the sum of the values of the cells
+     * @returns the score of the "pending" move, use before applyChanges, otherwise it'll return 0.
      */
 
-    getCurrentScore() {
-        return this.cells.flat().reduce((acc, cell) => acc + cell.val, 0);
+    getMoveScore() {
+        return this.cells.flat().reduce((acc, cell) => acc + (cell.isMergingInto() ? cell.val * 2 : 0), 0);
     }
-
+    
     toString() {
         return this.cells.map(row => row.map(cell => cell.val).join(' ')).join('\r\n');
     }
